@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 geopy = "^2.4.1"
 osmnx = "^1.9.3"
-pydantic = "^2.7.1"
+pydantic = "^2.8.2"
 python = "^3.12"
 shapely = "^2.0.4"
 
