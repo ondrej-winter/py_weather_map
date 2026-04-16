@@ -1,0 +1,4 @@
+.cline-logs/
+.coverage
+.vscode/
+__pycache__/

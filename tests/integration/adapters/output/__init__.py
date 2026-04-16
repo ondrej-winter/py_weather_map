@@ -1,0 +1,1 @@
+"""Output adapter integration tests."""
