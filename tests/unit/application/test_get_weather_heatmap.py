@@ -69,6 +69,12 @@ def test_get_weather_heatmap_queries_provider_and_returns_points() -> None:
     assert len(provider.requests) == 1
     assert cache.stored is not None
     assert response.sample_count == 2
+    assert response.grid_spec == GridSpec(rows=2, columns=2)
+    assert response.viewport == MapViewport(north=50.0, south=49.0, east=15.0, west=14.0)
+    assert response.points[0].row_index == 0
+    assert response.points[0].column_index == 0
+    assert response.points[1].row_index == 1
+    assert response.points[1].column_index == 1
     assert response.points[0].intensity == 0.0
     assert response.points[1].intensity == 1.0
     assert response.from_cache is False
@@ -102,3 +108,37 @@ def test_get_weather_heatmap_uses_cache_when_available() -> None:
 
     assert provider.requests == []
     assert response.from_cache is True
+
+
+def test_get_weather_heatmap_preserves_grid_indices_for_sparse_samples() -> None:
+    """Returned points should keep their original grid coordinates when some samples are missing."""
+    provider = FakeProvider(
+        series=[
+            LocationWeatherSeries(
+                location=GeoPoint(latitude=49.0, longitude=14.0),
+                timestamps_utc=(datetime(2024, 1, 1, 12, tzinfo=timezone.utc),),
+                values=(2.0,),
+            ),
+            LocationWeatherSeries(
+                location=GeoPoint(latitude=50.0, longitude=15.0),
+                timestamps_utc=(datetime(2024, 1, 1, 12, tzinfo=timezone.utc),),
+                values=(8.0,),
+            ),
+        ]
+    )
+    use_case = GetWeatherHeatmapUseCase(provider=provider, cache=FakeCache())
+
+    response = use_case.execute(
+        HeatmapQuery(
+            viewport=MapViewport(north=50.0, south=49.0, east=15.0, west=14.0),
+            layer=WeatherLayer.TEMPERATURE,
+            mode=AnalysisMode.SNAPSHOT,
+            start_date=date(2024, 1, 1),
+            end_date=date(2024, 1, 1),
+            snapshot_hour=12,
+            aggregation=None,
+            grid_spec=GridSpec(rows=2, columns=2),
+        )
+    )
+
+    assert [(point.row_index, point.column_index) for point in response.points] == [(0, 0), (1, 1)]

@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from weather_map.adapters.input.http.app import create_app
 from weather_map.application.dtos.weather_heatmap import HeatmapPointDTO, HeatmapQuery, HeatmapResponse, LayerOptionDTO
 from weather_map.config import WeatherMapSettings
+from weather_map.domain.geo import GridSpec, MapViewport
 from weather_map.domain.weather import AnalysisMode, TimeAggregation, WeatherLayer
 
 
@@ -21,7 +22,18 @@ class FakeHeatmapUseCase:
             mode=AnalysisMode.SNAPSHOT,
             aggregation=None,
             unit="°C",
-            points=[HeatmapPointDTO(latitude=50.0, longitude=14.0, value=5.0, intensity=1.0)],
+            viewport=MapViewport(north=50.0, south=49.0, east=15.0, west=14.0),
+            grid_spec=GridSpec(rows=2, columns=2),
+            points=[
+                HeatmapPointDTO(
+                    row_index=0,
+                    column_index=0,
+                    latitude=50.0,
+                    longitude=14.0,
+                    value=5.0,
+                    intensity=1.0,
+                )
+            ],
             min_value=5.0,
             max_value=5.0,
             sample_count=1,
@@ -69,6 +81,8 @@ def test_http_app_serves_layers_and_heatmap() -> None:
     assert layers_response.status_code == HTTPStatus.OK
     assert layers_response.json()[0]["layer"] == "temperature"
     assert heatmap_response.status_code == HTTPStatus.OK
+    assert heatmap_response.json()["grid_spec"] == {"rows": 2, "columns": 2}
+    assert heatmap_response.json()["points"][0]["row_index"] == 0
     assert heatmap_response.json()["sample_count"] == 1
 
 

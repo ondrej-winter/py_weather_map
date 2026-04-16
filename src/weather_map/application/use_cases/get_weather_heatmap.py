@@ -31,6 +31,9 @@ class GetWeatherHeatmapUseCase:
         """Execute the heatmap workflow."""
         layer_definition = get_layer_definition(query.layer)
         locations = tuple(generate_viewport_grid(query.viewport, query.grid_spec))
+        location_indices = {
+            location: divmod(index, query.grid_spec.columns) for index, location in enumerate(locations)
+        }
         request = HistoricalWeatherSampleRequest(
             locations=locations,
             layer=query.layer,
@@ -44,7 +47,7 @@ class GetWeatherHeatmapUseCase:
         if self._cache is not None and cached_series is None:
             self._cache.set(request, series_list)
 
-        sampled_values = []
+        aggregated_by_location = {}
         aggregation = query.aggregation or layer_definition.default_range_aggregation
         for series in series_list:
             aggregated_value = aggregate_series_values(
@@ -56,23 +59,32 @@ class GetWeatherHeatmapUseCase:
                 aggregation=aggregation,
             )
             if aggregated_value is not None:
-                sampled_values.append((series.location, aggregated_value))
+                aggregated_by_location[series.location] = aggregated_value
 
-        heatmap_points = normalize_heatmap_points(sampled_values)
+        sampled_values = [
+            (location, aggregated_by_location[location]) for location in locations if location in aggregated_by_location
+        ]
+
+        indexed_sampled_values = [(location_indices[location], location, value) for location, value in sampled_values]
+        heatmap_points = normalize_heatmap_points([(location, value) for _, location, value in indexed_sampled_values])
         raw_values = [point.value for point in heatmap_points]
         return HeatmapResponse(
             layer=query.layer,
             mode=query.mode,
             aggregation=aggregation if query.mode.value == "range" else None,
             unit=layer_definition.unit,
+            viewport=query.viewport,
+            grid_spec=query.grid_spec,
             points=[
                 HeatmapPointDTO(
+                    row_index=grid_index[0],
+                    column_index=grid_index[1],
                     latitude=point.latitude,
                     longitude=point.longitude,
                     value=point.value,
                     intensity=point.intensity,
                 )
-                for point in heatmap_points
+                for (grid_index, _, _), point in zip(indexed_sampled_values, heatmap_points, strict=True)
             ],
             min_value=min(raw_values) if raw_values else None,
             max_value=max(raw_values) if raw_values else None,

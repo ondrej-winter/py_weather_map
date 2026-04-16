@@ -60,6 +60,8 @@ class HistoricalWeatherSampleRequest:
 class HeatmapPointDTO:
     """A serialized heatmap point."""
 
+    row_index: int
+    column_index: int
     latitude: float
     longitude: float
     value: float
@@ -74,6 +76,8 @@ class HeatmapResponse:
     mode: AnalysisMode
     aggregation: TimeAggregation | None
     unit: str
+    viewport: MapViewport
+    grid_spec: GridSpec
     points: list[HeatmapPointDTO]
     min_value: float | None
     max_value: float | None
@@ -91,6 +95,13 @@ class HeatmapResponse:
         if self.sample_count != len(self.points):
             msg = "sample_count must match the number of points"
             raise InvalidHeatmapQueryError(msg)
+        for point in self.points:
+            if not 0 <= point.row_index < self.grid_spec.rows:
+                msg = "point row_index must fall within the grid bounds"
+                raise InvalidHeatmapQueryError(msg)
+            if not 0 <= point.column_index < self.grid_spec.columns:
+                msg = "point column_index must fall within the grid bounds"
+                raise InvalidHeatmapQueryError(msg)
 
 
 @dataclass(frozen=True)

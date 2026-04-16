@@ -5,7 +5,7 @@ Local Python web application for exploring historical weather data from Open-Met
 ## Features
 
 - Interactive OpenStreetMap map rendered with Leaflet
-- Historical weather heatmaps for temperature, precipitation, humidity, and wind speed
+- Historical weather surfaces for temperature, precipitation, humidity, and wind speed using a triangulated viewport grid
 - Snapshot mode for a single UTC day/hour
 - Range mode for simple date-range aggregations
 - On-demand historical fetches from Open-Meteo with an in-memory cache seam for future persistence

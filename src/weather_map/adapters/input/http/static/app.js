@@ -4,8 +4,115 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors',
 }).addTo(map);
 
-let heatLayer = L.heatLayer([], { radius: 28, blur: 20, maxZoom: 8 }).addTo(map);
 let availableLayers = [];
+
+function createTriangulatedSurfaceLayer() {
+  return L.Layer.extend({
+    initialize() {
+      this._payload = null;
+    },
+
+    onAdd(targetMap) {
+      this._map = targetMap;
+      this._canvas = L.DomUtil.create('canvas', 'leaflet-layer');
+      this._canvas.style.pointerEvents = 'none';
+      const pane = targetMap.getPanes().overlayPane;
+      pane.appendChild(this._canvas);
+      targetMap.on('move zoom resize', this._reset, this);
+      this._reset();
+    },
+
+    onRemove(targetMap) {
+      targetMap.off('move zoom resize', this._reset, this);
+      if (this._canvas) {
+        L.DomUtil.remove(this._canvas);
+      }
+    },
+
+    setPayload(payload) {
+      this._payload = payload;
+      this._redraw();
+    },
+
+    _reset() {
+      if (!this._map || !this._canvas) {
+        return;
+      }
+      const size = this._map.getSize();
+      const topLeft = this._map.containerPointToLayerPoint([0, 0]);
+      L.DomUtil.setPosition(this._canvas, topLeft);
+      this._canvas.width = size.x;
+      this._canvas.height = size.y;
+      this._redraw();
+    },
+
+    _redraw() {
+      if (!this._map || !this._canvas) {
+        return;
+      }
+      const context = this._canvas.getContext('2d');
+      context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+      if (!this._payload || !this._payload.points.length) {
+        return;
+      }
+
+      const grid = new Map();
+      this._payload.points.forEach((point) => {
+        grid.set(`${point.row_index}:${point.column_index}`, point);
+      });
+
+      for (let row = 0; row < this._payload.grid_spec.rows - 1; row += 1) {
+        for (let column = 0; column < this._payload.grid_spec.columns - 1; column += 1) {
+          const topLeft = grid.get(`${row}:${column}`);
+          const topRight = grid.get(`${row}:${column + 1}`);
+          const bottomLeft = grid.get(`${row + 1}:${column}`);
+          const bottomRight = grid.get(`${row + 1}:${column + 1}`);
+          if (!topLeft || !topRight || !bottomLeft || !bottomRight) {
+            continue;
+          }
+          this._drawTriangle(context, topLeft, topRight, bottomLeft);
+          this._drawTriangle(context, bottomRight, topRight, bottomLeft);
+        }
+      }
+
+      this._drawSampleMarkers(context, this._payload.points);
+    },
+
+    _drawTriangle(context, first, second, third) {
+      const a = this._map.latLngToContainerPoint([first.latitude, first.longitude]);
+      const b = this._map.latLngToContainerPoint([second.latitude, second.longitude]);
+      const c = this._map.latLngToContainerPoint([third.latitude, third.longitude]);
+      const intensity = (first.intensity + second.intensity + third.intensity) / 3;
+      context.beginPath();
+      context.moveTo(a.x, a.y);
+      context.lineTo(b.x, b.y);
+      context.lineTo(c.x, c.y);
+      context.closePath();
+      context.fillStyle = colorForIntensity(intensity);
+      context.globalAlpha = 0.72;
+      context.fill();
+      context.globalAlpha = 1;
+    },
+
+    _drawSampleMarkers(context, points) {
+      context.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      points.forEach((point) => {
+        const projected = this._map.latLngToContainerPoint([point.latitude, point.longitude]);
+        context.beginPath();
+        context.arc(projected.x, projected.y, 2, 0, Math.PI * 2);
+        context.fill();
+      });
+    },
+  });
+}
+
+function colorForIntensity(intensity) {
+  const hue = 240 - (240 * Math.max(0, Math.min(1, intensity)));
+  return `hsla(${hue}, 85%, 50%, 1)`;
+}
+
+const TriangulatedSurfaceLayer = createTriangulatedSurfaceLayer();
+const surfaceLayer = new TriangulatedSurfaceLayer().addTo(map);
 
 const form = document.getElementById('controls-form');
 const layerSelect = document.getElementById('layer-select');
@@ -96,8 +203,7 @@ async function refreshHeatmap() {
     statusEl.textContent = payload.detail || 'Failed to load heatmap';
     return;
   }
-  const heatPoints = payload.points.map((point) => [point.latitude, point.longitude, point.intensity]);
-  heatLayer.setLatLngs(heatPoints);
+  surfaceLayer.setPayload(payload);
   statusEl.textContent = `Loaded ${payload.sample_count} samples for ${payload.layer} (${payload.unit})${payload.from_cache ? ' from cache' : ''}.`;
 }
 

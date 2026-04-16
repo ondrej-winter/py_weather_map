@@ -71,10 +71,28 @@ class HeatmapQueryRequestModel(BaseModel):
 class HeatmapPointResponseModel(BaseModel):
     """JSON model for a single heatmap point."""
 
+    row_index: int
+    column_index: int
     latitude: float
     longitude: float
     value: float
     intensity: float
+
+
+class ViewportResponseModel(BaseModel):
+    """JSON model for the viewport used to generate the surface."""
+
+    north: float
+    south: float
+    east: float
+    west: float
+
+
+class GridSpecResponseModel(BaseModel):
+    """JSON model for the sampling grid."""
+
+    rows: int
+    columns: int
 
 
 class HeatmapResponseModel(BaseModel):
@@ -84,6 +102,8 @@ class HeatmapResponseModel(BaseModel):
     mode: str
     aggregation: str | None
     unit: str
+    viewport: ViewportResponseModel
+    grid_spec: GridSpecResponseModel
     points: list[HeatmapPointResponseModel]
     min_value: float | None
     max_value: float | None
@@ -129,6 +149,13 @@ def map_response_to_model(response: HeatmapResponse) -> HeatmapResponseModel:
         mode=response.mode.value,
         aggregation=response.aggregation.value if response.aggregation is not None else None,
         unit=response.unit,
+        viewport=ViewportResponseModel(
+            north=response.viewport.north,
+            south=response.viewport.south,
+            east=response.viewport.east,
+            west=response.viewport.west,
+        ),
+        grid_spec=GridSpecResponseModel(rows=response.grid_spec.rows, columns=response.grid_spec.columns),
         points=[map_point_to_model(point) for point in response.points],
         min_value=response.min_value,
         max_value=response.max_value,
@@ -141,6 +168,8 @@ def map_response_to_model(response: HeatmapResponse) -> HeatmapResponseModel:
 def map_point_to_model(point: HeatmapPointDTO) -> HeatmapPointResponseModel:
     """Convert a heatmap point DTO into JSON form."""
     return HeatmapPointResponseModel(
+        row_index=point.row_index,
+        column_index=point.column_index,
         latitude=point.latitude,
         longitude=point.longitude,
         value=point.value,

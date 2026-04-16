@@ -64,4 +64,5 @@ def test_heatmap_endpoint_returns_grid_samples() -> None:
     )
 
     assert response.status_code == 200
+    assert response.json()["grid_spec"] == {"rows": 2, "columns": 2}
     assert response.json()["sample_count"] == 4
