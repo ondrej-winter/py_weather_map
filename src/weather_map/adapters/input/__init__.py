@@ -1,1 +1,1 @@
-"""Driving adapters such as CLI or HTTP entry points."""
+"""Driving adapters such as HTTP entry points for the local UI."""

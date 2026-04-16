@@ -1,1 +1,1 @@
-"""Driven adapters such as persistence or external API clients."""
+"""Driven adapters such as Open-Meteo clients and weather caches."""

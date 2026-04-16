@@ -2,7 +2,11 @@
 name = "weather-map"
 version = "0.1.0"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115",
+    "httpx>=0.27",
+    "uvicorn>=0.30",
+]
 
 [project.scripts]
 weather-map = "weather_map:main"
@@ -22,6 +26,9 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/weather_map"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"src/weather_map/adapters/input/http/static" = "weather_map/adapters/input/http/static"
+
 [tool.ruff]
 line-length = 120
 target-version = "py313"
@@ -33,11 +40,24 @@ exclude = [
 select = ["ALL"]
 ignore = [
     "ANN",
+    "ARG001",
+    "ARG002",
+    "B008",
     "COM812",
     "D1",
+    "FAST002",
     "FIX",
     "ISC001",
+    "PLR0913",
+    "PLR2004",
+    "RET504",
+    "TC001",
+    "TC002",
+    "TC003",
+    "TC004",
     "TD",
+    "UP017",
+    "UP037",
 ]
 
 [tool.ruff.lint.per-file-ignores]

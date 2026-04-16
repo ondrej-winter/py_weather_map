@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Weather Map</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="controls">
+        <h1>Weather Map</h1>
+        <form id="controls-form">
+          <label>
+            Layer
+            <select id="layer-select" name="layer"></select>
+          </label>
+          <label>
+            Mode
+            <select id="mode-select" name="mode">
+              <option value="snapshot">Snapshot</option>
+              <option value="range">Range</option>
+            </select>
+          </label>
+          <label>
+            Start date
+            <input id="start-date" name="start_date" type="date" required />
+          </label>
+          <label>
+            End date
+            <input id="end-date" name="end_date" type="date" />
+          </label>
+          <label>
+            Snapshot hour (UTC)
+            <input id="snapshot-hour" name="snapshot_hour" type="number" min="0" max="23" value="12" />
+          </label>
+          <label>
+            Aggregation
+            <select id="aggregation-select" name="aggregation"></select>
+          </label>
+          <label>
+            Grid rows
+            <input id="grid-rows" name="grid_rows" type="number" min="2" max="20" value="8" />
+          </label>
+          <label>
+            Grid columns
+            <input id="grid-columns" name="grid_columns" type="number" min="2" max="20" value="8" />
+          </label>
+          <button type="submit">Refresh heatmap</button>
+        </form>
+        <div id="status" class="status">Loading…</div>
+      </aside>
+      <main>
+        <div id="map"></div>
+      </main>
+    </div>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
