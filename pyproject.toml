@@ -63,6 +63,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/weather_map/__init__.py" = ["T201"]
+"scripts/*.py" = ["T201"]
 "tests/**/*.py" = ["S101"]
 
 [tool.mypy]
