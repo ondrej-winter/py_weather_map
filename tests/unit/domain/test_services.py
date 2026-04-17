@@ -2,8 +2,10 @@
 
 from datetime import date, datetime, timezone
 
-from weather_map.domain.geo import GeoPoint, GridSpec, MapViewport
-from weather_map.domain.services import aggregate_series_values, generate_viewport_grid, normalize_heatmap_points
+from weather_map.application.dtos.geometry import GridSpec, MapViewport
+from weather_map.application.use_cases.get_weather_heatmap import generate_viewport_grid
+from weather_map.domain.geo import GeoPoint
+from weather_map.domain.services import aggregate_series_values, normalize_heatmap_points
 from weather_map.domain.weather import AnalysisMode, LocationWeatherSeries, TimeAggregation
 
 

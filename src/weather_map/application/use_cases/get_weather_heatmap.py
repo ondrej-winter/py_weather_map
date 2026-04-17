@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from weather_map.application.dtos.geometry import GridSpec, MapViewport
 from weather_map.application.dtos.weather_heatmap import (
     HeatmapPointDTO,
     HeatmapQuery,
@@ -11,8 +12,22 @@ from weather_map.application.dtos.weather_heatmap import (
     HistoricalWeatherSampleRequest,
 )
 from weather_map.application.ports.output import HistoricalWeatherCachePort, HistoricalWeatherProviderPort
-from weather_map.domain.services import aggregate_series_values, generate_viewport_grid, normalize_heatmap_points
+from weather_map.domain.geo import GeoPoint
+from weather_map.domain.services import aggregate_series_values, normalize_heatmap_points
 from weather_map.domain.weather import get_layer_definition
+
+
+def generate_viewport_grid(viewport: MapViewport, grid_spec: GridSpec) -> list[GeoPoint]:
+    """Generate evenly spaced sample points over the viewport."""
+    lat_step = (viewport.north - viewport.south) / (grid_spec.rows - 1)
+    lon_step = (viewport.east - viewport.west) / (grid_spec.columns - 1)
+    points: list[GeoPoint] = []
+    for row in range(grid_spec.rows):
+        latitude = viewport.south + (row * lat_step)
+        for column in range(grid_spec.columns):
+            longitude = viewport.west + (column * lon_step)
+            points.append(GeoPoint(latitude=latitude, longitude=longitude))
+    return points
 
 
 class GetWeatherHeatmapUseCase:

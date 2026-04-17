@@ -2,9 +2,10 @@
 
 from datetime import date, datetime, timezone
 
+from weather_map.application.dtos.geometry import GridSpec, MapViewport
 from weather_map.application.dtos.weather_heatmap import HeatmapQuery, HistoricalWeatherSampleRequest
 from weather_map.application.use_cases.get_weather_heatmap import GetWeatherHeatmapUseCase
-from weather_map.domain.geo import GeoPoint, GridSpec, MapViewport
+from weather_map.domain.geo import GeoPoint
 from weather_map.domain.weather import AnalysisMode, LocationWeatherSeries, WeatherLayer
 
 

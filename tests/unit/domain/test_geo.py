@@ -2,8 +2,9 @@
 
 import pytest
 
+from weather_map.application.dtos.geometry import GridSpec, MapViewport
 from weather_map.domain.exceptions import InvalidViewportError
-from weather_map.domain.geo import GeoPoint, GridSpec, MapViewport
+from weather_map.domain.geo import GeoPoint
 
 
 def test_geo_point_accepts_valid_coordinates() -> None:

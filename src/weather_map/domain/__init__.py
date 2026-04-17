@@ -7,7 +7,7 @@ from weather_map.domain.exceptions import (
     WeatherDataUnavailableError,
     WeatherMapError,
 )
-from weather_map.domain.geo import GeoPoint, GridSpec, MapViewport
+from weather_map.domain.geo import GeoPoint
 from weather_map.domain.weather import (
     AnalysisMode,
     HeatmapPoint,
@@ -20,13 +20,11 @@ from weather_map.domain.weather import (
 __all__ = [
     "AnalysisMode",
     "GeoPoint",
-    "GridSpec",
     "HeatmapPoint",
     "InvalidHeatmapQueryError",
     "InvalidViewportError",
     "LayerDefinition",
     "LocationWeatherSeries",
-    "MapViewport",
     "TimeAggregation",
     "UnsupportedWeatherLayerError",
     "WeatherDataUnavailableError",

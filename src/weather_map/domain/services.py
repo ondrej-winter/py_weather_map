@@ -5,21 +5,8 @@ from __future__ import annotations
 from datetime import date
 from statistics import fmean
 
-from weather_map.domain.geo import GeoPoint, GridSpec, MapViewport
+from weather_map.domain.geo import GeoPoint
 from weather_map.domain.weather import AnalysisMode, HeatmapPoint, LocationWeatherSeries, TimeAggregation
-
-
-def generate_viewport_grid(viewport: MapViewport, grid_spec: GridSpec) -> list[GeoPoint]:
-    """Generate evenly spaced sample points over the viewport."""
-    lat_step = (viewport.north - viewport.south) / (grid_spec.rows - 1)
-    lon_step = (viewport.east - viewport.west) / (grid_spec.columns - 1)
-    points: list[GeoPoint] = []
-    for row in range(grid_spec.rows):
-        latitude = viewport.south + (row * lat_step)
-        for column in range(grid_spec.columns):
-            longitude = viewport.west + (column * lon_step)
-            points.append(GeoPoint(latitude=latitude, longitude=longitude))
-    return points
 
 
 def aggregate_series_values(

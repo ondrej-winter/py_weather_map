@@ -5,8 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 
+from weather_map.application.dtos.geometry import GridSpec, MapViewport
 from weather_map.domain.exceptions import InvalidHeatmapQueryError
-from weather_map.domain.geo import GeoPoint, GridSpec, MapViewport
+from weather_map.domain.geo import GeoPoint
 from weather_map.domain.weather import AnalysisMode, TimeAggregation, WeatherLayer
 
 

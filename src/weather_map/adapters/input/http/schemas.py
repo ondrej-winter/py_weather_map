@@ -6,9 +6,9 @@ from datetime import date
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from weather_map.application.dtos.geometry import GridSpec, MapViewport
 from weather_map.application.dtos.weather_heatmap import HeatmapPointDTO, HeatmapQuery, HeatmapResponse, LayerOptionDTO
 from weather_map.config import WeatherMapSettings
-from weather_map.domain.geo import GridSpec, MapViewport
 from weather_map.domain.weather import AnalysisMode, TimeAggregation, WeatherLayer, get_layer_definition
 
 

@@ -6,9 +6,9 @@ from http import HTTPStatus
 from fastapi.testclient import TestClient
 
 from weather_map.adapters.input.http.app import create_app
+from weather_map.application.dtos.geometry import GridSpec, MapViewport
 from weather_map.application.dtos.weather_heatmap import HeatmapPointDTO, HeatmapQuery, HeatmapResponse, LayerOptionDTO
 from weather_map.config import WeatherMapSettings
-from weather_map.domain.geo import GridSpec, MapViewport
 from weather_map.domain.weather import AnalysisMode, TimeAggregation, WeatherLayer
 
 
