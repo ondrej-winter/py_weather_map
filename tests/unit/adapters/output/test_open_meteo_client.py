@@ -5,8 +5,8 @@ from datetime import date
 import httpx
 
 from weather_map.adapters.output.open_meteo.client import OpenMeteoHistoricalWeatherClient
+from weather_map.application.dtos import WeatherMapSettings
 from weather_map.application.dtos.weather_heatmap import HistoricalWeatherSampleRequest
-from weather_map.config import WeatherMapSettings
 from weather_map.domain.geo import GeoPoint
 from weather_map.domain.weather import WeatherLayer
 

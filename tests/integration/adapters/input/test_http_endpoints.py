@@ -5,10 +5,10 @@ from datetime import date, datetime, timezone
 from fastapi.testclient import TestClient
 
 from weather_map.adapters.input.http.app import create_app
+from weather_map.application.dtos import WeatherMapSettings
 from weather_map.application.dtos.weather_heatmap import HistoricalWeatherSampleRequest
 from weather_map.application.use_cases.get_available_layers import GetAvailableWeatherLayersUseCase
 from weather_map.application.use_cases.get_weather_heatmap import GetWeatherHeatmapUseCase
-from weather_map.config import WeatherMapSettings
 from weather_map.domain.geo import GeoPoint
 from weather_map.domain.weather import LocationWeatherSeries
 

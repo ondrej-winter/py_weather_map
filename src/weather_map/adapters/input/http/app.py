@@ -22,8 +22,8 @@ from weather_map.adapters.input.http.schemas import (
 from weather_map.domain.exceptions import WeatherMapError
 
 if TYPE_CHECKING:
+    from weather_map.application.dtos import WeatherMapSettings
     from weather_map.application.ports.input import AvailableWeatherLayersPort, WeatherHeatmapQueryPort
-    from weather_map.config import WeatherMapSettings
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 

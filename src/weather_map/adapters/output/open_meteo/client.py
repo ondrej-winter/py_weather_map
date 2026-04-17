@@ -7,13 +7,13 @@ from typing import TYPE_CHECKING
 
 import httpx
 
+from weather_map.application.dtos import WeatherMapSettings
 from weather_map.domain.exceptions import WeatherDataUnavailableError
 from weather_map.domain.geo import GeoPoint
 from weather_map.domain.weather import LocationWeatherSeries, get_layer_definition
 
 if TYPE_CHECKING:
     from weather_map.application.dtos.weather_heatmap import HistoricalWeatherSampleRequest
-    from weather_map.config import WeatherMapSettings
 
 
 class OpenMeteoHistoricalWeatherClient:

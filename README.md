@@ -18,6 +18,9 @@ Install dependencies with `uv`:
 uv sync --group dev
 ```
 
+Runtime settings are loaded from environment variables via a dedicated env-settings adapter.
+The adapter also supports a local `.env` file.
+
 ## Run locally
 
 Start the local web app:
@@ -42,6 +45,8 @@ Environment variables:
 - `WEATHER_MAP_DEFAULT_GRID_COLUMNS` (default: `8`)
 - `WEATHER_MAP_MAX_GRID_ROWS` (default: `20`)
 - `WEATHER_MAP_MAX_GRID_COLUMNS` (default: `20`)
+
+These values are parsed and validated at startup. Invalid or blank values fail fast with a configuration error.
 
 Snapshot mode uses a single UTC date plus hour. Range mode aggregates data across the selected date interval.
 
