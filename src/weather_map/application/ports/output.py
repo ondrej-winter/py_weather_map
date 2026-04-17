@@ -26,3 +26,18 @@ class HistoricalWeatherCachePort(Protocol):
     def set(self, request: HistoricalWeatherSampleRequest, series: list[LocationWeatherSeries]) -> None:
         """Store weather series for later reuse."""
         ...
+
+
+class CuratedHistoricalWeatherStorePort(Protocol):
+    """Port for storing and loading curated local weather series."""
+
+    def fetch_available(
+        self,
+        request: HistoricalWeatherSampleRequest,
+    ) -> list[LocationWeatherSeries]:
+        """Return any locally available series for the requested locations."""
+        ...
+
+    def save(self, request: HistoricalWeatherSampleRequest, series: list[LocationWeatherSeries]) -> None:
+        """Persist weather series into the curated local store."""
+        ...
