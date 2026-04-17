@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -27,31 +28,51 @@ class OpenMeteoHistoricalWeatherClient:
     def fetch(self, request: HistoricalWeatherSampleRequest) -> list[LocationWeatherSeries]:
         """Fetch weather series for each requested location."""
         layer_definition = get_layer_definition(request.layer)
+        params: dict[str, str] = {
+            "latitude": ",".join(str(location.latitude) for location in request.locations),
+            "longitude": ",".join(str(location.longitude) for location in request.locations),
+            "start_date": request.start_date.isoformat(),
+            "end_date": request.end_date.isoformat(),
+            "hourly": layer_definition.openmeteo_hourly_variable,
+            "timezone": "UTC",
+        }
+        try:
+            response = self._client.get(self._settings.openmeteo_base_url, params=params)
+            response.raise_for_status()
+        except httpx.HTTPError as error:
+            msg = "Unable to retrieve historical weather data from Open-Meteo"
+            raise WeatherDataUnavailableError(msg) from error
+
+        payload = response.json()
+        response_payloads = self._coerce_payloads(payload)
+        if len(response_payloads) != len(request.locations):
+            msg = "Open-Meteo response location count does not match request"
+            raise WeatherDataUnavailableError(msg)
+
         results: list[LocationWeatherSeries] = []
-        for location in request.locations:
-            params: dict[str, str | float] = {
-                "latitude": location.latitude,
-                "longitude": location.longitude,
-                "start_date": request.start_date.isoformat(),
-                "end_date": request.end_date.isoformat(),
-                "hourly": layer_definition.openmeteo_hourly_variable,
-                "timezone": "UTC",
-            }
-            try:
-                response = self._client.get(self._settings.openmeteo_base_url, params=params)
-                response.raise_for_status()
-            except httpx.HTTPError as error:
-                msg = "Unable to retrieve historical weather data from Open-Meteo"
-                raise WeatherDataUnavailableError(msg) from error
+        for location, response_payload in zip(request.locations, response_payloads, strict=True):
             results.append(
                 self._parse_response(
                     location.latitude,
                     location.longitude,
-                    response.json(),
+                    response_payload,
                     layer_definition.openmeteo_hourly_variable,
                 )
             )
         return results
+
+    def _coerce_payloads(self, payload: object) -> list[dict[str, object]]:
+        """Normalize single-location and multi-location API responses into a list."""
+        if isinstance(payload, dict):
+            return [payload]
+        if isinstance(payload, Sequence) and not isinstance(payload, str):
+            payloads = [item for item in payload if isinstance(item, dict)]
+            if len(payloads) != len(payload):
+                msg = "Open-Meteo multi-location response contains invalid items"
+                raise WeatherDataUnavailableError(msg)
+            return payloads
+        msg = "Open-Meteo response has an unsupported shape"
+        raise WeatherDataUnavailableError(msg)
 
     def _parse_response(
         self,
