@@ -73,3 +73,6 @@ files = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=src --cov-report=term-missing"
+markers = [
+    "live_external: tests that call real external services and are disabled by default",
+]
