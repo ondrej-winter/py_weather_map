@@ -97,6 +97,7 @@ Prefer short inline references inside the relevant step. Add a dedicated `Relate
 - `add-hexagonal-feature` - Add an end-to-end use case across domain, application, and tests
 - `python-add-port` - Define a focused input or output port contract in the application layer
 - `python-add-adapter` - Implement an input or output adapter against an existing port
+- `python-add-env-settings-adapter` - Add an environment-backed runtime settings adapter with application-owned settings DTOs and adapter-owned parsing/validation
 - `update-project-docs` - Update README, changelog-style notes, and related project-facing docs after a change
 - `split-python-module` - Safely split a large Python module or package while preserving boundaries and intentional imports
 - `add-observability` - Add profiling, metrics, tracing, and operational notes for meaningful workflows
@@ -119,6 +120,7 @@ Prefer short inline references inside the relevant step. Add a dedicated `Relate
   - use `write-pytest-tests` when the feature needs new or revised pytest coverage
   - use `python-add-port` when the feature needs a new application boundary
   - use `python-add-adapter` when the feature needs an input or output adapter
+  - use `python-add-env-settings-adapter` when the feature introduces environment-backed runtime configuration
   - use `update-project-docs` when the feature changes README-visible behavior or configuration
   - use `add-observability` when the feature adds a critical path that needs metrics, tracing, or troubleshooting notes
   - use `write-python-docstrings` when new public APIs or non-obvious contracts need in-code documentation
@@ -130,10 +132,18 @@ Prefer short inline references inside the relevant step. Add a dedicated `Relate
 - From `python-add-adapter`
   - use `python-add-port` when the required boundary does not exist yet
   - use `add-hexagonal-feature` when adapter work is part of a full use case change
+  - use `python-add-env-settings-adapter` when the adapter is responsible for loading and validating runtime settings from environment variables or a `.env` file
   - use `write-pytest-tests` when the adapter needs focused pytest coverage
   - use `add-observability` when the adapter adds important I/O, retries, or operator-visible failure modes
   - use `update-project-docs` when the adapter changes external configuration or usage
   - use `write-adr` when integration choices should be documented
+
+- From `python-add-env-settings-adapter`
+  - use `python-add-adapter` when the work only needs adapter implementation against an existing configuration boundary
+  - use `add-hexagonal-feature` when settings work is part of a broader use case change
+  - use `write-pytest-tests` when configuration parsing or validation needs deeper pytest coverage
+  - use `update-project-docs` when runtime configuration changes require README-visible documentation
+  - use `write-adr` when the configuration approach or boundary should be documented
 - From `split-python-module`
   - use `write-python-docstrings` when the split creates new public modules or package surfaces
   - use `update-project-docs` when the split changes public import paths or developer-facing structure docs
