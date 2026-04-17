@@ -1,5 +1,6 @@
 .cline-logs/
 .coverage
+.venv/
 .vscode/
 __pycache__/
 data/weather_history/
